@@ -2,6 +2,26 @@ package com.company;
 
 public class TimeComplexity {
 
+    public static void  main(String[] args){
+        int n = 2;
+//        System.out.println(fib(n));
+//        int[] arr = {1,2,3,4,5,6,7,8,9};
+//        System.out.println(binarySearch(arr, 5));
+//        mergeSort(arr, 0, arr.length - 1);
+//        for (int i : arr) {
+//            System.out.print(i + " ");
+//        }
+//        System.out.println();
+//        int[] nums = {1, 3, 4, 2, 2};
+//        System.out.println(findDuplicate(nums));
+//        int[] arr1 = {4, 10, 3, 5, 1};
+//        for (int i : arr1) {
+//            System.out.print(i + " ");
+//        }
+//        System.out.println();
+        System.out.println(longestCommonSubsequence("abcde", "ace"));
+    }
+
     // Big O Notation Time Complexity: O(2^n) and Space Complexity: O(n)
     public static int fib(int n) {
         if (n <= 1) return n;
@@ -52,5 +72,57 @@ public class TimeComplexity {
     }
 
 
+    // Finding Duplicates in an Array
+    // Big O Notation Time Complexity: O(n) and Space Complexity: O(1)
+    public static int findDuplicate(int[] nums) {
+        int slow = nums[0], fast = nums[0];
+        do {
+            slow = nums[slow];
+            fast = nums[nums[fast]];
+        } while (slow != fast);
+        slow = nums[0];
+        while (slow != fast) {
+            slow = nums[slow];
+            fast = nums[fast];
+        }
+        return slow;
+    }
+
+    // Heap Operations
+    // Big O Notation Time Complexity: O(log n) and Space Complexity: O(log n)
+
+    public static void heapify(int[] arr, int n, int i) {
+        int largest = i;
+        int left = 2 * i + 1;
+        int right = 2 * i + 2;
+        if (left < n && arr[left] > arr[largest]) largest = left;
+        if (right < n && arr[right] > arr[largest]) largest = right;
+        if (largest != i) {
+            int temp = arr[i];
+            arr[i] = arr[largest];
+            arr[largest] = temp;
+            heapify(arr, n, largest);
+        }
+    }
+
+
+    // What is the time and space complexity of the dynamic programming solution to the
+
+    // Longest Common Subsequence problem?
+    // Big O Notation Time Complexity: O(m*n) and Space Complexity: O(m*n)
+
+    public static int longestCommonSubsequence(String text1, String text2) {
+        int m = text1.length(), n = text2.length();
+        int[][] dp = new int[m+1][n+1];
+        for (int i = 1; i <= m; i++) {
+            char c1 = text1.charAt(i-1);
+            for (int j = 1; j <= n; j++) {
+                char c2 = text2.charAt(j-1);
+                if (c1 == c2) dp[i][j] = dp[i-1][j-1] + 1;
+                else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+        return dp[m][n];
+    }
 
 }
