@@ -9,31 +9,63 @@ import java.sql.*;
 public class Main {
     public static void main(String[] args)throws ClassNotFoundException {
 
-        /////********* UPLOAD FILE HANDLING   *********/////
 
         String url = "jdbc:mysql://localhost:3306/students";
         String username = "root";
         String password = "Saman@12345";
+
+        /////********* UPLOAD FILE HANDLING   *********/////
+
         String image_path = "/Users/apple/Desktop/WhatsApp Image 2024-08-27 at 7.05.59 AM.jpg";
         String folder_path = "/Users/apple/Desktop/web";
         String query = "SELECT * FROM image_tb WHERE image_id = (?)";
+
+        /////********* TRANSACTION HANDLING   *********/////
+        String withdrawQuery = "UPDATE account SET balance = balance - ? WHERE account_number = ?";
+        String depositQuery = "UPDATE account SET balance = balance + ? WHERE account_number = ?";
+
         try
             (Connection connection = DriverManager.getConnection(url, username, password)){
                 System.out.println("Connection successful");
 
-                ///////////////********* DOWNLOAD IMAGE FROM DATABASE *********/////
-                PreparedStatement ps = connection.prepareStatement(query);
-                ps.setInt(1,1);
-                ResultSet rs = ps.executeQuery();
-                if(rs.next()){
-                    String image_paths = folder_path+"extracted_image.jpg";
-                    byte[] image = rs.getBytes("image_data");
-                    OutputStream os = new FileOutputStream(image_paths);
-                    os.write(image);
-
-                }else {
-                    System.out.println("Image download failed");
+                /////********* TRANSACTION HANDLING   *********/////
+             try {
+                 connection.setAutoCommit(false);
+                 PreparedStatement ps1 = connection.prepareStatement(withdrawQuery);
+                 PreparedStatement ps2 = connection.prepareStatement(depositQuery);
+                 ps1.setDouble(1,500.00);
+                 ps1.setString(2,"1");
+                 ps2.setDouble(1,500.00);
+                 ps2.setString(2,"2");
+                    int affectedRows1 = ps1.executeUpdate();
+                    int affectedRows2 = ps2.executeUpdate();
+                    if(affectedRows1>0 && affectedRows2>0){
+                        connection.commit();
+                        System.out.println("Transaction successful");
+                    }else {
+                        connection.rollback();
+                        System.out.println("Transaction failed");
+                    }
+             } catch (SQLException e){
+                 connection.rollback();
+                 System.out.println("Transaction failed");
                 }
+
+
+
+                ///////////////********* DOWNLOAD IMAGE FROM DATABASE *********/////
+//                PreparedStatement ps = connection.prepareStatement(query);
+//                ps.setInt(1,1);
+//                ResultSet rs = ps.executeQuery();
+//                if(rs.next()){
+//                    String image_paths = folder_path+"extracted_image.jpg";
+//                    byte[] image = rs.getBytes("image_data");
+//                    OutputStream os = new FileOutputStream(image_paths);
+//                    os.write(image);
+//
+//                }else {
+//                    System.out.println("Image download failed");
+//                }
 
                 ////////********* UPLOAD IMAGE TO DATABASE *********/////
 //            FileInputStream fis = new FileInputStream(image_path);
@@ -52,9 +84,7 @@ public class Main {
             }catch (SQLException e){
                 System.out.println("Connection failed");
                 System.out.println(e.getMessage());
-            } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            }
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
