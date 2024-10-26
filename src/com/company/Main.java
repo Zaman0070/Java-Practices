@@ -1,29 +1,68 @@
 // This is the main class of the project
 package  com.company;
+import java.io.*;
 import java.util.*;
+import java.sql.*;
+
 
 
 public class Main {
-    public static void main(String[] args) {
-        int n =2;
-//        towerOfHanoi(n,"S","H","D");
-//        reverseString("Hello");
-//        System.out.println(removeDuplicates("aaabbbccc"));
-//        findOccurrence("Hello",'l');
-//        int[] arr = {1,2,3,4,5,6,7,8,9};
-//        System.out.println(isSorted(arr,0));
-//        moveToEnd(arr,0,5);
-//        for(int i:arr){
-//            System.out.print(i+" ");
-//        }
-//        printKeyPadCombinations("23","");
-//
-//        printPermutations("zaman","");
-//        System.out.println(countPath(3,3));
-//        System.out.println(callGuest(5));
-        int m= 3;
-        ArrayList<Integer> arr = new ArrayList<>();
-        findSubset(m,arr);
+    public static void main(String[] args)throws ClassNotFoundException {
+
+        /////********* UPLOAD FILE HANDLING   *********/////
+
+        String url = "jdbc:mysql://localhost:3306/students";
+        String username = "root";
+        String password = "Saman@12345";
+        String image_path = "/Users/apple/Desktop/WhatsApp Image 2024-08-27 at 7.05.59 AM.jpg";
+        String folder_path = "/Users/apple/Desktop/web";
+        String query = "SELECT * FROM image_tb WHERE image_id = (?)";
+        try
+            (Connection connection = DriverManager.getConnection(url, username, password)){
+                System.out.println("Connection successful");
+
+                ///////////////********* DOWNLOAD IMAGE FROM DATABASE *********/////
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setInt(1,1);
+                ResultSet rs = ps.executeQuery();
+                if(rs.next()){
+                    String image_paths = folder_path+"extracted_image.jpg";
+                    byte[] image = rs.getBytes("image_data");
+                    OutputStream os = new FileOutputStream(image_paths);
+                    os.write(image);
+
+                }else {
+                    System.out.println("Image download failed");
+                }
+
+                ////////********* UPLOAD IMAGE TO DATABASE *********/////
+//            FileInputStream fis = new FileInputStream(image_path);
+//            byte[] image = new byte[fis.available()];
+//            fis.read(image);
+//            PreparedStatement ps = connection.prepareStatement(query);
+//            ps.setBytes(1,image);
+//          int affectedRows =   ps.executeUpdate();
+//            if (affectedRows>0) {
+//                System.out.println("Image uploaded successfully");
+//            }else {
+//                System.out.println("Image upload failed");
+//            }
+
+
+            }catch (SQLException e){
+                System.out.println("Connection failed");
+                System.out.println(e.getMessage());
+            } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("Driver loaded successfully");
+        } catch (ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+
     }
 
 
